@@ -1,7 +1,15 @@
 import { User } from './../common/decorators/user.decorator';
 import { UserDto } from './../common/dto/user.dto';
 import { UsersService } from './users.service';
-import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseInterceptors,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { JoinRequestDto } from './dto/join.request.dto';
 import {
@@ -10,7 +18,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { undefinedToNullInterceptor } from 'src/common/interceptors/undefinedToNull.interceptor';
 
+@UseInterceptors(undefinedToNullInterceptor)
 @ApiTags('USER')
 @Controller('users')
 export class UsersController {
