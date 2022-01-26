@@ -1,3 +1,4 @@
+import { User } from './../common/decorators/user.decorator';
 import { UserDto } from './../common/dto/user.dto';
 import { UsersService } from './users.service';
 import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
@@ -19,7 +20,7 @@ export class UsersController {
   @ApiResponse({ status: 500, description: '서버 에러' })
   @ApiOperation({ summary: '내 정보 조회' })
   @Get()
-  getUsers(@Req() req: Request) {
+  getUsers(@User() user) {
     // return req.user;
   }
 
@@ -32,7 +33,7 @@ export class UsersController {
   @ApiOkResponse({ type: UserDto, description: '성공' })
   @ApiOperation({ summary: '로그인' })
   @Post('login')
-  logIn() {
+  logIn(@User() user) {
     // return req.user;
   }
 
