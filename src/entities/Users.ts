@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   Column,
   CreateDateColumn,
@@ -22,15 +23,31 @@ import { Workspaces } from './Workspaces';
 // name은 테이블명이다
 @Entity({ schema: 'sleact', name: 'users' })
 export class Users {
+  @ApiProperty({
+    example: 1,
+    description: '사용자 아이디',
+  })
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
+  @ApiProperty({
+    example: 'yoteamo7@naver.com',
+    description: '이메일',
+  })
   @Column('varchar', { name: 'email', unique: true, length: 30 })
   email: string;
 
+  @ApiProperty({
+    example: 'wonjae',
+    description: '닉네임',
+  })
   @Column('varchar', { name: 'nickname', length: 30 })
   nickname: string;
 
+  @ApiProperty({
+    example: 'asjdolj1234',
+    description: '비밀번호',
+  })
   @Column('varchar', { name: 'password', length: 100, select: false })
   password: string;
 
