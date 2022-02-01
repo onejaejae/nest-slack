@@ -3,6 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
+import session from 'express-session';
+import passport from 'passport';
 declare const module: any;
 
 async function bootstrap() {
@@ -16,6 +19,20 @@ async function bootstrap() {
   // 이것을 설정해두면 class-validator가 붙은 dto가 있으면
   // 알아서 검증까지 해준다.
   app.useGlobalPipes(new ValidationPipe());
+
+  app.use(cookieParser());
+  app.use(
+    session({
+      resave: false,
+      saveUninitialized: false,
+      secret: process.env.COOKIE_SECRET,
+      cookie: {
+        httpOnly: true,
+      },
+    }),
+  );
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   const options = new DocumentBuilder()
     .setTitle('Sleact API')
