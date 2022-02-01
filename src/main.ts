@@ -1,3 +1,4 @@
+import { HttpExceptionFilter } from './httpException.filter';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -6,6 +7,10 @@ declare const module: any;
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const PORT = process.env.PORT;
+
+  // useGlobalFilters로 등록하면
+  // 앞으로 컨트롤러에서 발생하는 httpexception을 걸러준다
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   const options = new DocumentBuilder()
     .setTitle('Sleact API')
