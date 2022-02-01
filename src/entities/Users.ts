@@ -18,6 +18,7 @@ import { DMs } from './DMs';
 import { Mentions } from './Mentions';
 import { WorkspaceMembers } from './WorkspaceMembers';
 import { Workspaces } from './Workspaces';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 @Index('email', ['email'], { unique: true })
 // name은 테이블명이다
@@ -34,6 +35,8 @@ export class Users {
     example: 'yoteamo7@naver.com',
     description: '이메일',
   })
+  @IsEmail()
+  @IsNotEmpty()
   @Column('varchar', { name: 'email', unique: true, length: 30 })
   email: string;
 
@@ -41,6 +44,8 @@ export class Users {
     example: 'wonjae',
     description: '닉네임',
   })
+  @IsString()
+  @IsNotEmpty()
   @Column('varchar', { name: 'nickname', length: 30 })
   nickname: string;
 
@@ -48,6 +53,8 @@ export class Users {
     example: 'asjdolj1234',
     description: '비밀번호',
   })
+  @IsString()
+  @IsNotEmpty()
   @Column('varchar', { name: 'password', length: 100, select: false })
   password: string;
 

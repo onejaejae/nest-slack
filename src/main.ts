@@ -2,6 +2,7 @@ import { HttpExceptionFilter } from './httpException.filter';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 declare const module: any;
 
 async function bootstrap() {
@@ -11,6 +12,10 @@ async function bootstrap() {
   // useGlobalFilters로 등록하면
   // 앞으로 컨트롤러에서 발생하는 httpexception을 걸러준다
   app.useGlobalFilters(new HttpExceptionFilter());
+
+  // 이것을 설정해두면 class-validator가 붙은 dto가 있으면
+  // 알아서 검증까지 해준다.
+  app.useGlobalPipes(new ValidationPipe());
 
   const options = new DocumentBuilder()
     .setTitle('Sleact API')
