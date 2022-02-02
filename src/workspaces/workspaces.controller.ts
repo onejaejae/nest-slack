@@ -1,8 +1,10 @@
+import { LoggedInGuard } from './../auth/logged-in.guard';
 import { WorkspacesService } from './workspaces.service';
-import { Body, Controller, Delete, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from 'src/common/decorators/user.decorator';
 import { Users } from 'src/entities/Users';
+import { CreateWorkspaceDto } from './dto/create.workspace.dto';
 
 @ApiTags('WORKSPACE')
 @Controller('api/workspaces')
@@ -20,6 +22,7 @@ export class WorkspacesController {
     return this.workspacesService.getMyWorkspaces(user.id);
   }
 
+  @UseGuards(new LoggedInGuard())
   @Post()
   createWorkspace(@User() user: Users, @Body() body: CreateWorkspaceDto) {
     return this.workspacesService.createWorkspace(
