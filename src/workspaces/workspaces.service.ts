@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
 import { Users } from 'src/entities/Users';
+import { Channel } from 'diagnostics_channel';
 
 @Injectable()
 export class WorkspacesService {
@@ -83,12 +84,55 @@ export class WorkspacesService {
     }
   }
 
+  // 워크스페이스에 초대
+  async createWorkspaceMembers(url: string, email: string) {
+    const workspace = await this.workspacesRepository.findOne({
+      where: { url },
+      join: {
+        alias: 'workspace',
+        innerJoinAndSelect: {
+          channels: 'workspace.Channels',
+        },
+      },
+    });
+
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) {
+      return null;
+    }
+
+    const workspaceMember = new WorkspaceMembers();
+    workspaceMember.WorkspaceId = workspace.id;
+    workspaceMember.UserId = user.id;
+    await this.workspaceMembersRepository.save(workspaceMember);
+
+    // 모든 채널에 초대하는 것이 아닌
+    // 기본적으로 일반 채널로 초대
+    const channelMember = new ChannelMembers();
+    channelMember.ChannelId = workspace.Channels.find(
+      (v) => v.name === '일반',
+    ).id;
+    channelMember.UserId = user.id;
+    await this.channelMembersRepository.save(channelMember);
+  }
+
   async getWorkspaceMembers(url: string) {
-    this.usersRepository
+    return this.usersRepository
       .createQueryBuilder('user')
-      .innerJoin('user.WorkspaceMembers', 'm')
-      // 'w.url = :url', { url } => sql injection 방어
-      .innerJoin('m.workspace', 'w', 'w.url = :url', { url })
+      .innerJoin('user.WorkspaceMembers', 'members')
+      .innerJoin('members.Workspace', 'workspace', 'workspace.url = :url', {
+        url,
+      })
       .getMany();
+  }
+
+  async getWorkspaceMember(url: string, id: number) {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id })
+      .innerJoin('user.Workspaces', 'workspaces', 'workspaces.url = :url', {
+        url,
+      })
+      .getOne();
   }
 }

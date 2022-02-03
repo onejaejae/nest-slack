@@ -1,7 +1,16 @@
 import { LoggedInGuard } from './../auth/logged-in.guard';
 import { WorkspacesService } from './workspaces.service';
-import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/common/decorators/user.decorator';
 import { Users } from 'src/entities/Users';
 import { CreateWorkspaceDto } from './dto/create.workspace.dto';
@@ -11,6 +20,7 @@ import { CreateWorkspaceDto } from './dto/create.workspace.dto';
 export class WorkspacesController {
   constructor(private readonly workspacesService: WorkspacesService) {}
 
+  @ApiOperation({ summary: '내 워크스페이스 가져오기' })
   @Get()
   getMyWorkspaces(@User() user: Users) {
     // param, query는 기본적으로 string이다.
@@ -22,6 +32,23 @@ export class WorkspacesController {
     return this.workspacesService.getMyWorkspaces(user.id);
   }
 
+  // 변수명 길게 짓는 것이 좋은 습관
+  @ApiOperation({ summary: '워크스페이스 멤버 가져오기' })
+  @Get(':url/members')
+  getAllMembersFromWorkspace(@Param('url') url: string) {
+    return this.workspacesService.getWorkspaceMembers(url);
+  }
+
+  @ApiOperation({ summary: '워크스페이스 특정멤버 가져오기' })
+  @Get(':url/members/:id')
+  getMemberInfoInWorkspace(
+    @Param('url') url: string,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.workspacesService.getWorkspaceMember(url, id);
+  }
+
+  @ApiOperation({ summary: '워크스페이스 만들기' })
   @UseGuards(new LoggedInGuard())
   @Post()
   createWorkspace(@User() user: Users, @Body() body: CreateWorkspaceDto) {
@@ -32,16 +59,12 @@ export class WorkspacesController {
     );
   }
 
-  // 변수명 길게 짓는 것이 좋은 습관
-  @Get(':url/members')
-  getAllMembersFromWorkspace() {}
-
+  @ApiOperation({ summary: '워크스페이스 멤버 초대하기' })
   @Post(':url/members')
-  inviteMembersToWorkspace() {}
+  inviteMembersToWorkspace(@Param('url') url, @Body('email') email) {
+    return this.workspacesService.createWorkspaceMembers(url, email);
+  }
 
   @Delete(':url/members/:id')
   kickMemberFromWorkspace() {}
-
-  @Get(':url/members/:id')
-  getMemberInfoInWorkspace() {}
 }
