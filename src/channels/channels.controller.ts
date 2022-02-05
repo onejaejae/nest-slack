@@ -1,11 +1,18 @@
+import { ChannelsService } from './channels.service';
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { User } from 'src/common/decorators/user.decorator';
+import { Users } from 'src/entities/Users';
 
 @ApiTags('CHANNEL')
 @Controller('api/workspaces/:url/channels')
 export class ChannelsController {
+  constructor(private readonly channelsService: ChannelsService) {}
+
   @Get()
-  getAllChnnels() {}
+  getAllChnnels(@Param('url') url: string, @User() user: Users) {
+    return this.channelsService.getWorkspaceChannels(url, user.id);
+  }
 
   @Get(':name/chats')
   getChats(@Query() query, @Param() param) {
