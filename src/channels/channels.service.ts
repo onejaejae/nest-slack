@@ -167,8 +167,38 @@ export class ChannelsService {
       .where('channel.name=:name', { name })
       .getOne();
 
+    // count = COUNT(*)
     return this.channelChatsRepository.count({
+      // More than => createdAt > '2020-02-06'
       where: { channelId: channel.id, createdAt: MoreThan(new Date(after)) },
     });
+  }
+
+  async postChat({ url, name, content, myId }) {
+    const channel = await this.channelsRepository
+      .createQueryBuilder('channel')
+      .innerJoin('channel.Workspace', 'workspace', 'workspace.url=:url', {
+        url,
+      })
+      .where('channel.name=:name', { name })
+      .getOne();
+
+    if (!channel) {
+      throw new NotFoundException('채널이 존재하지 않습니다.');
+    }
+
+    const chats = new ChannelChats();
+    chats.ChannelId = channel.id;
+    chats.UserId = myId;
+    chats.content = content;
+    const saveChats = await this.channelChatsRepository.save(chats);
+
+    const chatWithUser = await this.channelChatsRepository.findOne({
+      where: { id: saveChats.id },
+      relations: ['User', 'Channel'],
+    });
+
+    console.log('asd');
+    return chatWithUser;
   }
 }

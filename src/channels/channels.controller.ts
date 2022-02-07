@@ -3,6 +3,7 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/common/decorators/user.decorator';
 import { Users } from 'src/entities/Users';
+import { postChatDto } from './dto/post-chat.dto';
 
 @ApiTags('CHANNEL')
 @Controller('api/workspaces/:url/channels')
@@ -40,10 +41,6 @@ export class ChannelsController {
     return this.channelsService.createWorkspaceChannel(url, body.name, user.id);
   }
 
-  @ApiOperation({ summary: '워크스페이스 특정 채널 채팅 생성하기' })
-  @Post(':name/chats')
-  postChat(@Body() body) {}
-
   @ApiOperation({ summary: '워크스페이스 채널 멤버 초대하기' })
   @Post(':name/members')
   inviteMembers(
@@ -53,4 +50,23 @@ export class ChannelsController {
   ) {
     return this.channelsService.createWorkspaceChannelMembers(url, name, email);
   }
+
+  @ApiOperation({ summary: '워크스페이스 특정 채널 채팅 생성하기' })
+  @Post(':name/chats')
+  postChats(
+    @Body() body: postChatDto,
+    @Param('url') url: string,
+    @Param('name') name: string,
+    @User() user: Users,
+  ) {
+    return this.channelsService.postChat({
+      url,
+      name,
+      content: body.content,
+      myId: user.id,
+    });
+  }
+
+  @Post(':name/images')
+  postImages(@Body() body) {}
 }
