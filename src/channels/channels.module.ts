@@ -1,3 +1,4 @@
+import { EventsModule } from './../events/events.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChannelMembers } from 'src/entities/ChannelMembers';
 import { Channels } from './../entities/Channels';
@@ -17,6 +18,7 @@ import { Users } from 'src/entities/Users';
       ChannelChats,
       Users,
     ]),
+    EventsModule,
   ],
   controllers: [ChannelsController],
   providers: [ChannelsService],

@@ -1,3 +1,4 @@
+import { EventsGateway } from './../events/events.gateway';
 import { Workspaces } from './../entities/Workspaces';
 import { Channels } from './../entities/Channels';
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -19,6 +20,7 @@ export class ChannelsService {
     @InjectRepository(ChannelChats)
     private channelChatsRepository: Repository<Channels>,
     @InjectRepository(Users) private usersRepository: Repository<Channels>,
+    private eventsGateway: EventsGateway,
   ) {}
 
   async findById(id: number) {
@@ -198,7 +200,9 @@ export class ChannelsService {
       relations: ['User', 'Channel'],
     });
 
-    console.log('asd');
-    return chatWithUser;
+    // socket.id로 워크스페이스+채널 사용자에 전송
+    this.eventsGateway.server
+      .to(`/ws-${url}-${channel.id}`)
+      .emit('message', chatWithUser);
   }
 }
