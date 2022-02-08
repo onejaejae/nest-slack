@@ -1,9 +1,29 @@
 import { ChannelsService } from './channels.service';
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/common/decorators/user.decorator';
 import { Users } from 'src/entities/Users';
 import { postChatDto } from './dto/post-chat.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+
+try {
+  fs.readdirSync('uploads');
+} catch (error) {
+  console.error('uploads 폴더가 없어 uploads 폴더를 생성합니다.');
+  fs.mkdirSync('uploads');
+}
 
 @ApiTags('CHANNEL')
 @Controller('api/workspaces/:url/channels')
@@ -67,6 +87,33 @@ export class ChannelsController {
     });
   }
 
+  @UseInterceptors(
+    FilesInterceptor('image', 10, {
+      storage: multer.diskStorage({
+        destination(req, res, cb) {
+          cb(null, 'uploads/');
+        },
+        filename(req, file, cb) {
+          const ext = path.extname(file.originalname);
+          cb(null, path.basename(file.originalname, ext) + Date.now() + ext);
+        },
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB,
+    }),
+  )
   @Post(':name/images')
-  postImages(@Body() body) {}
+  postImages(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Param('url') url: string,
+    @Param('name') name: string,
+    @User() user: Users,
+  ) {
+    console.log('files', files[0]);
+    return this.channelsService.createWorkspaceChannelImages(
+      url,
+      name,
+      files,
+      user.id,
+    );
+  }
 }

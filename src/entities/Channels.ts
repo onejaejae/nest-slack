@@ -59,4 +59,5 @@ export class Channels {
   // OneToMany 관계는 JoinColumn()을 FK가 있는 곳에 넣는다
   @JoinColumn([{ name: 'WorkspaceId', referencedColumnName: 'id' }])
   Workspace: Workspaces;
+  ChannelId: any;
 }

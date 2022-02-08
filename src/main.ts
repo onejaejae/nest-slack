@@ -6,11 +6,18 @@ import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import passport from 'passport';
+import path from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
+
 declare const module: any;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const PORT = process.env.PORT;
+
+  app.useStaticAssets(path.join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads',
+  });
 
   // useGlobalFilters로 등록하면
   // 앞으로 컨트롤러에서 발생하는 httpexception을 걸러준다
